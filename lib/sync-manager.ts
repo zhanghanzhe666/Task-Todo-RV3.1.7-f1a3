@@ -43,14 +43,19 @@ export class SyncManager {
       // 动态导入 PeerJS
       const { default: Peer } = await import("peerjs")
 
+      // 使用本地 STUN 服务器，不依赖外部服务器
       this.peer = new Peer(this.peerId, {
-        host: "peerjs-server.herokuapp.com",
-        port: 443,
-        path: "/peerjs",
-        secure: true,
         config: {
-          iceServers: [{ urls: "stun:stun.l.google.com:19302" }, { urls: "stun:stun1.l.google.com:19302" }],
+          iceServers: [
+            { urls: "stun:stun.l.google.com:19302" },
+            { urls: "stun:stun1.l.google.com:19302" },
+            { urls: "stun:stun2.l.google.com:19302" },
+            { urls: "stun:stun3.l.google.com:19302" },
+            { urls: "stun:stun4.l.google.com:19302" },
+          ],
+          sdpSemantics: "unified-plan",
         },
+        debug: 1, // 减少日志输出
       })
 
       this.setupPeerEvents()
@@ -76,14 +81,51 @@ export class SyncManager {
 
     this.peer.on("error", (error: any) => {
       console.error("Peer error:", error)
-      this.onError?.(`连接错误: ${error.message}`)
-      this.handleDisconnection()
+
+      // 处理特定错误类型
+      if (error.type === "network" || error.type === "server-error" || error.message.includes("Lost connection")) {
+        this.onError?.(`连接错误: 服务器连接丢失，尝试使用本地连接`)
+        // 尝试使用本地连接模式
+        this.switchToLocalMode()
+      } else {
+        this.onError?.(`连接错误: ${error.message}`)
+        this.handleDisconnection()
+      }
     })
 
     this.peer.on("disconnected", () => {
       console.log("Peer disconnected")
       this.handleDisconnection()
     })
+  }
+
+  // 切换到本地连接模式
+  private switchToLocalMode(): void {
+    if (this.peer) {
+      this.peer.destroy()
+    }
+
+    setTimeout(async () => {
+      try {
+        const { default: Peer } = await import("peerjs")
+
+        // 使用本地模式，不依赖信令服务器
+        this.peer = new Peer(this.peerId, {
+          config: {
+            iceServers: [{ urls: "stun:stun.l.google.com:19302" }, { urls: "stun:stun1.l.google.com:19302" }],
+          },
+          host: "localhost",
+          port: 9000,
+          path: "/myapp",
+        })
+
+        this.setupPeerEvents()
+        this.onStatusChange?.("connecting")
+      } catch (error) {
+        console.error("Failed to switch to local mode:", error)
+        this.onError?.("无法切换到本地连接模式")
+      }
+    }, 1000)
   }
 
   private handleIncomingConnection(conn: any): void {
@@ -206,7 +248,11 @@ export class SyncManager {
 
     try {
       this.onStatusChange?.("connecting")
-      const conn = this.peer.connect(targetPeerId)
+      const conn = this.peer.connect(targetPeerId, {
+        reliable: true,
+        serialization: "json",
+      })
+
       this.setupConnection(conn)
       this.connections.set(targetPeerId, conn)
 

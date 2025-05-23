@@ -60,9 +60,25 @@
   * {
     @apply border-border;
   }
+
+  /* 添加深色模式平滑过渡 */
+  html {
+    transition: background-color 0.5s ease, color 0.5s ease;
+  }
+
   body {
     @apply bg-background text-foreground font-sans;
     font-feature-settings: "rlig" 1, "calt" 1;
+    transition: background-color 0.5s ease, color 0.5s ease;
+  }
+
+  /* 为所有元素添加过渡效果 */
+  *,
+  *::before,
+  *::after {
+    transition-property: background-color, border-color, color, fill, stroke;
+    transition-duration: 0.5s;
+    transition-timing-function: ease;
   }
 
   h1,
@@ -141,6 +157,76 @@
     transform: translateY(-20px);
     transition: opacity 300ms, transform 300ms;
   }
+}
+
+/* 磨砂玻璃效果 */
+.frosted-glass {
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  background-color: rgba(255, 255, 255, 0.7);
+}
+
+.dark .frosted-glass {
+  background-color: rgba(30, 30, 30, 0.7);
+}
+
+/* 背景图片容器 */
+.bg-image-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  transition: opacity 1s ease;
+}
+
+/* 烟花动画 */
+@keyframes firework {
+  0% {
+    transform: translate(-50%, 60vh);
+    width: 0.5vmin;
+    opacity: 1;
+  }
+  50% {
+    width: 0.5vmin;
+    opacity: 1;
+  }
+  100% {
+    width: 45vmin;
+    opacity: 0;
+  }
+}
+
+.firework {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.firework::before,
+.firework::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  box-shadow:
+    -0.1vmin -0.1vmin 1vmin 0.5vmin rgba(255, 0, 0, 0.5),
+    0.1vmin -0.1vmin 1vmin 0.5vmin rgba(0, 255, 0, 0.5),
+    0.1vmin 0.1vmin 1vmin 0.5vmin rgba(0, 0, 255, 0.5),
+    -0.1vmin 0.1vmin 1vmin 0.5vmin rgba(255, 255, 0, 0.5);
+  animation: firework 2s ease-out infinite;
+}
+
+.firework::after {
+  animation-delay: 0.5s;
 }
 
 /* Markdown 样式增强 */
@@ -506,4 +592,167 @@
 
 .sync-indicator.syncing {
   @apply bg-blue-100 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400;
+}
+
+/* 时钟样式 */
+.clock-container {
+  position: relative;
+  width: 250px;
+  height: 250px;
+  margin: 0 auto;
+}
+
+.clock-face {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background-color: var(--clock-face-color, white);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.5s ease;
+}
+
+.dark .clock-face {
+  --clock-face-color: #2a2a2a;
+}
+
+.clock-center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 12px;
+  height: 12px;
+  margin: -6px 0 0 -6px;
+  background-color: var(--primary-rgb, #3b82f6);
+  border-radius: 50%;
+  z-index: 10;
+}
+
+.clock-hour,
+.clock-minute,
+.clock-second {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform-origin: 50% 0;
+}
+
+.clock-hour {
+  width: 6px;
+  height: 60px;
+  margin: 0 0 0 -3px;
+  background-color: var(--foreground, black);
+  border-radius: 3px;
+}
+
+.clock-minute {
+  width: 4px;
+  height: 80px;
+  margin: 0 0 0 -2px;
+  background-color: var(--foreground, black);
+  border-radius: 2px;
+}
+
+.clock-second {
+  width: 2px;
+  height: 90px;
+  margin: 0 0 0 -1px;
+  background-color: var(--primary-rgb, #3b82f6);
+  border-radius: 1px;
+}
+
+.clock-marking {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+}
+
+.clock-marking span {
+  position: absolute;
+  width: 2px;
+  height: 8px;
+  background-color: var(--foreground, black);
+  opacity: 0.5;
+}
+
+.clock-marking span:nth-child(3n) {
+  height: 12px;
+  opacity: 0.8;
+}
+
+/* 专注模式计时器样式 */
+.focus-timer {
+  position: relative;
+  width: 200px;
+  height: 200px;
+  margin: 0 auto;
+}
+
+.focus-timer-circle {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background-color: transparent;
+  border: 8px solid var(--secondary, #e5e7eb);
+}
+
+.focus-timer-progress {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  clip: rect(0, 100px, 200px, 0);
+  border: 8px solid var(--primary-rgb, #3b82f6);
+  transform: rotate(0deg);
+  transition: transform 1s linear;
+}
+
+.focus-timer-time {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: var(--foreground, black);
+}
+
+.focus-timer-label {
+  position: absolute;
+  bottom: 20%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.875rem;
+  color: var(--muted-foreground, #6b7280);
+}
+
+/* 烟花庆祝效果 */
+@keyframes explode {
+  0% {
+    transform: scale(0);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0;
+  }
+}
+
+.fireworks-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+.firework-particle {
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  animation: explode 0.8s ease-out forwards;
 }
