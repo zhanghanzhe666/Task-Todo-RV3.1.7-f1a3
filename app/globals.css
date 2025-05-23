@@ -1,5 +1,3 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Merriweather:wght@400;700&family=JetBrains+Mono:wght@400;500&display=swap");
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -27,6 +25,11 @@
     --input: 214.3 31.8% 91.4%;
     --ring: 221.2 83.2% 53.3%;
     --radius: 0.5rem;
+
+    /* 字体变量 */
+    --font-inter: var(--font-inter);
+    --font-merriweather: var(--font-merriweather);
+    --font-jetbrains-mono: var(--font-jetbrains-mono);
   }
 
   .dark {
@@ -72,16 +75,16 @@
   }
 
   .font-sans {
-    font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial,
-      sans-serif;
+    font-family: var(--font-inter), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue",
+      Arial, sans-serif;
   }
 
   .font-serif {
-    font-family: "Merriweather", Georgia, Cambria, "Times New Roman", Times, serif;
+    font-family: var(--font-merriweather), Georgia, Cambria, "Times New Roman", Times, serif;
   }
 
   .font-mono {
-    font-family: "JetBrains Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    font-family: var(--font-jetbrains-mono), Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
   }
 
   /* 平滑滚动 */
@@ -482,4 +485,25 @@
 .task-card-hover button {
   position: relative;
   z-index: 5;
+}
+
+/* 同步状态指示器 */
+.sync-indicator {
+  @apply inline-flex items-center gap-1 text-xs px-2 py-1 rounded-full;
+}
+
+.sync-indicator.connected {
+  @apply bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400;
+}
+
+.sync-indicator.connecting {
+  @apply bg-yellow-100 text-yellow-700 dark:bg-yellow-900/20 dark:text-yellow-400;
+}
+
+.sync-indicator.disconnected {
+  @apply bg-red-100 text-red-700 dark:bg-red-900/20 dark:text-red-400;
+}
+
+.sync-indicator.syncing {
+  @apply bg-blue-100 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400;
 }

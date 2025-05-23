@@ -3,6 +3,8 @@
 import { Textarea } from "@/components/ui/textarea"
 import AuthCodeModal from "@/components/auth-code-modal"
 import TimelineView from "@/components/timeline-view"
+import SyncPanel from "@/components/sync-panel"
+import type { SyncData } from "@/lib/sync-manager"
 
 import type React from "react"
 
@@ -127,6 +129,7 @@ export default function TaskDashboard() {
   const [importData, setImportData] = useState("")
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [lastSyncTime, setLastSyncTime] = useState<Date | null>(null)
 
   // 保存用户设置
   // 只在这些值实际变化时才更新用户设置
@@ -716,6 +719,18 @@ export default function TaskDashboard() {
     "#6366f1", // indigo
   ]
 
+  // 处理同步数据
+  const handleSyncData = (syncData: SyncData) => {
+    setTasks(syncData.tasks)
+    setCategories(syncData.categories)
+    setUserSettings(syncData.settings)
+    setLastSyncTime(new Date())
+    toast({
+      title: "数据已同步",
+      description: "已从其他设备同步最新数据",
+    })
+  }
+
   return (
     <div className={cn("container mx-auto py-8 px-4", userSettings.compactMode && "max-w-5xl")}>
       <header className="mb-8">
@@ -737,6 +752,7 @@ export default function TaskDashboard() {
           </motion.h1>
           <div className="flex items-center gap-2 flex-wrap justify-end">
             <ThemeToggle />
+            <SyncPanel tasks={tasks} categories={categories} settings={userSettings} onDataSync={handleSyncData} />
             <TaskNotifications
               tasks={tasks}
               onSelectTask={(taskId) => {
